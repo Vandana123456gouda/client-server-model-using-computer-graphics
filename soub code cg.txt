@@ -1,0 +1,245 @@
+
+
+#include "pch.h"
+#include <fstream>
+#include <iostream>
+#include "stdlib.h" //Needed for "exit" function
+#include <time.h>
+
+//Include OpenGL header files, so that we can use OpenGL
+#ifdef _APPLE_
+#include <OpenGL/OpenGL.h>
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
+
+using namespace std;
+float h1 = 9, h2 = 31, b1 = 28, b2 = 31;//vertixes
+float k = 1, k2 = -1, k3 = 1; //steps
+int w = 0;//flage
+
+//Declare the functions
+void drawScene();
+void opposite_line();
+
+//Delay
+void delay(float secs)
+{
+	float end = clock() / CLOCKS_PER_SEC + secs;
+	while ((clock() / CLOCKS_PER_SEC) < end);
+}
+
+//Type the text
+
+//show the characters in its position on the screen
+void renderbitmap(float x, float y, void *font, char *string) {
+	char *c;
+	glRasterPos2f(x, y);
+	for (c = string; *c != '\0'; c++) {
+		glutBitmapCharacter(font, *c);
+	}
+}
+
+//send the position and string to the "renderbitmap" func
+
+//send Req
+void introscreen1(float i) {
+	glColor3f(1.0f, 1.0f, 1.0f);
+	char buf[100] = { 0 };
+	sprintf_s(buf, "Req");
+	glPushMatrix();
+	glTranslatef(i, 0, 0);
+	renderbitmap(h1, h2, GLUT_BITMAP_TIMES_ROMAN_24, buf);
+	glPopMatrix();
+	glFlush();
+	delay(0.00001);
+	glClear(GL_COLOR_BUFFER_BIT);
+	drawScene();
+}
+
+//send Data
+void introscreen2(float i) {
+	glColor3f(1.0f, 1.0f, 1.0f);
+	char buf[100] = { 0 };
+	sprintf_s(buf, "Data");
+	glPushMatrix();
+	glTranslatef(i, 0, 0);
+	renderbitmap(b1, b2, GLUT_BITMAP_TIMES_ROMAN_24, buf);
+	glPopMatrix();
+	glFlush();
+	delay(0.00001);
+	glClear(GL_COLOR_BUFFER_BIT);
+	drawScene();
+}
+
+//send Done
+void done(float i) {
+	glColor3f(1.0f, 1.0f, 1.0f);
+	char buf[100] = { 0 };
+	sprintf_s(buf, "Done");
+	glPushMatrix();
+	glTranslatef(i, 0, 0);
+	renderbitmap(h1, h2, GLUT_BITMAP_TIMES_ROMAN_24, buf);
+	glPopMatrix();
+	glFlush();
+	delay(0.00001);
+	glClear(GL_COLOR_BUFFER_BIT);
+	drawScene();
+}
+
+//send S,C charachters  S->SERVER  C->CLIENT
+void introscreen() {
+	glColor3f(1.0f, 1.0f, 1.0f);
+	char buf[100] = { 0 };
+	sprintf_s(buf, "S");
+	renderbitmap(29.5, 29, GLUT_BITMAP_TIMES_ROMAN_24, buf);
+	sprintf_s(buf, "C");
+	renderbitmap(9, 29, GLUT_BITMAP_TIMES_ROMAN_24, buf);
+}
+
+//display to S,C characters 
+void display(int x = 0) {
+	introscreen();
+	glFlush();
+	glutPostRedisplay();
+}
+
+//Called when a key is pressed
+void handleKeypress(unsigned char key, //The key that was pressed
+	int x, int y) { //The current mouse coordinates
+
+	switch (key) {
+
+		//Translate Request
+	case 114: //r
+	{   w = 0;
+	if (k >= 20)k = 55;
+	introscreen1(k); k += 2;
+	break;
+	}
+
+	//Translate Data
+	case 100://d
+	{opposite_line();
+	if (k2 <= -20)k2 = -55;
+	introscreen2(k2); k2 -= 2;
+	break;
+	}
+
+	//Translate Done
+	case 68://D
+	{   w = 0;
+	if (k3 >= 20) { k3 = 55; w = 2; }
+	done(k3); k3 += 2;
+	break;
+	}
+
+	}
+}
+
+
+//delete first line and draw second line
+void opposite_line() {
+	if (w == 0) { glClear(GL_LINE); w = 1; }
+	glColor3f(0.0, 1.0, 0.0);
+	glBegin(GL_LINES);
+	glVertex2f(12.5, 30);
+	glVertex2f(27.5, 30);
+
+	glVertex2f(13, 31);
+	glVertex2f(12.5, 30);
+
+	glVertex2f(13, 29);
+	glVertex2f(12.5, 30);
+	glEnd();
+	glFlush();
+
+}
+
+
+//Draws the 2D scene
+void drawScene() {
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	//draw the left circle
+	glColor3f(0.0, 1.0, 0.0);
+
+	glBegin(GL_POINTS);
+	for (int i = 0; i < 360; ++i)
+	{
+		glVertex2f((cos(3.14159*i / 180.0))*2.0 + 10, (sin(3.14159*i / 180.0))*2.0 + 30);
+	}
+	glEnd();
+
+	//draw the right circle
+	glColor3f(0.0, 1.0, 0.0);
+	glBegin(GL_POINTS);
+	for (int i = 0; i < 360; ++i)
+	{
+		glVertex2f((cos(3.14159*i / 180.0))*2.0 + 30, (sin(3.14159*i / 180.0))*2.0 + 30);
+	}
+	glEnd();
+
+	//Draw Lines
+
+	// draw first and third line
+	if (w == 0) {
+		glColor3f(0.0, 1.0, 0.0);
+		glBegin(GL_LINES);
+		glVertex2f(12.5, 30);
+		glVertex2f(27.5, 30);
+
+		glVertex2f(27, 31);
+		glVertex2f(27.5, 30);
+
+		glVertex2f(27, 29);
+		glVertex2f(27.5, 30);
+		glEnd();
+	}
+
+	// draw second line
+	if (w == 1) {
+		glColor3f(0.0, 1.0, 0.0);
+		glBegin(GL_LINES);
+		glVertex2f(12.5, 30);
+		glVertex2f(27.5, 30);
+
+		glVertex2f(13, 31);
+		glVertex2f(12.5, 30);
+
+		glVertex2f(13, 29);
+		glVertex2f(12.5, 30);
+		glEnd();
+
+	}
+
+	
+
+	//clear third line
+	if (w == 2) { glClear(GL_LINE); }
+
+	//write client and server (C , S)
+	display(0);
+
+	glFlush();
+
+}
+
+int main(int argc, char** argv) {
+	//Initialize GLUT
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+	glutInitWindowSize(500, 500); //Set the window size
+	glutInitWindowPosition(30, 30);
+	glutCreateWindow("Client_to_Server");//Create the window
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	gluOrtho2D(0.0, 50.0, 0.0, 50.0);
+	glutDisplayFunc(drawScene);
+	glutKeyboardFunc(handleKeypress);
+	glutMainLoop(); //Start the main loop.  glutMainLoop doesn't return.
+	return 0; //This line is never reached
+}
+
+
+
